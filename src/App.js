@@ -1,8 +1,9 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useContractRead } from 'wagmi';
+import { useContract, useContractRead, useSigner } from 'wagmi';
 import MultiSigWallet from './artifacts/contracts/MultiSigWallet.sol/MultiSigWallet.json';
-import { Col, Container, ListGroup, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form, FormControl, ListGroup, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 
 function App() {
 
@@ -10,6 +11,7 @@ function App() {
 
   const [scBalance, setScBalance] = useState(0)
   const [totalTxCount, setTotalTxCount] = useState(0)
+  const [ethToUseForDeposit, setEthToUseForDeposit] = useState(0)
 
   //Fetch Owners of the Contract
   const { data: owners} = useContractRead({
@@ -44,6 +46,21 @@ function App() {
       setTotalTxCount(withdrawTxnCount)
     }
   }, [contractBalance, withdrawTxnCount])
+
+  const {data: signer} = useSigner()
+  const contract = useContract({
+    addressOrName: contractAddress,
+    contractInterface: MultiSigWallet.abi,
+    signerOrProvider: signer
+  })
+
+  //Deposit eth to waalet  
+  const depositToEtherWalletContract = async() => {
+    await contract.deposit({
+      value: ethers.utils.parseEther(ethToUseForDeposit)
+    })
+    setEthToUseForDeposit(0)
+  }
 
   return (
     <div className='container flex flex-col items-center mt-10'>
@@ -80,6 +97,28 @@ function App() {
               Balance of Smart Contract:
           </Col>
           <Col>{scBalance}</Col>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row>
+          <h3 className='text-5xl font-bold mb-20'>
+            {'Deposit to EtherWallet Smart Contract'}
+          </h3>
+        </Row>
+        <Row>
+          <Form>
+            <Form.Group className='mb-3' controlID='numberInEth'>
+              <FormControl type='text' placeholder='Amount in ETH'
+                onChange={(e) => setEthToUseForDeposit(e.target.value)} 
+              />
+            </Form.Group>
+            <Button variant='primary' 
+              onClick={depositToEtherWalletContract} 
+            >
+              Deposit to Ether Wallet Smart Contract
+            </Button>
+          </Form>
         </Row>
       </Container>
     </div>
