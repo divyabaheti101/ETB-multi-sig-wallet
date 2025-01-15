@@ -36,11 +36,11 @@ contract MultiSigWallet {
         require(_qourum > 0 && _qourum <= _owners.length, "invalid no. of reqd. qourums");
         for (uint i =0; i< _owners.length; i++){
             require(_owners[i] != address(0), "Invalid Owner");
-            require(isOwner[_owners[i]], "Owner not Unique");
+            require(!isOwner[_owners[i]], "Owner not Unique");
 
             owners.push(_owners[i]);
             isOwner[_owners[i]] = true;
-        }
+        }  
         quorumRequired = _qourum;
     }
     // TODO: Declare a function modifier called "onlyOwner" that ensures that the function caller is one of the owners of the wallet
