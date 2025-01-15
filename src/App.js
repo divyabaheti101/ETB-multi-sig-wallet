@@ -12,6 +12,8 @@ function App() {
   const [scBalance, setScBalance] = useState(0)
   const [totalTxCount, setTotalTxCount] = useState(0)
   const [ethToUseForDeposit, setEthToUseForDeposit] = useState(0)
+  const [ethToUseForWithdraw, setEthToUseForWithdraw] = useState(0)
+  const [receiverAddress, setReceiverAddress] = useState(ethers.constants.AddressZero)
 
   //Fetch Owners of the Contract
   const { data: owners} = useContractRead({
@@ -54,12 +56,19 @@ function App() {
     signerOrProvider: signer
   })
 
-  //Deposit eth to waalet  
+  //Deposit eth to wallet  
   const depositToEtherWalletContract = async() => {
     await contract.deposit({
       value: ethers.utils.parseEther(ethToUseForDeposit)
     })
     setEthToUseForDeposit(0)
+  }
+
+  //Withdraw eth from contract/wallet
+  const withdrawETHfromContract = async() => {
+    await contract.createWithdrawTx(receiverAddress, ethers.utils.parseEther(ethToUseForWithdraw));
+    setEthToUseForWithdraw(0)
+    setReceiverAddress(ethers.constants.AddressZero)
   }
 
   return (
@@ -117,6 +126,27 @@ function App() {
               onClick={depositToEtherWalletContract} 
             >
               Deposit to Ether Wallet Smart Contract
+            </Button>
+          </Form>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row>
+          <h3 className='text-5xl font-bold mb-20'>
+            {'Withdraw from EtherWallet Smart Contract'}
+          </h3>
+        </Row>
+        <Row>
+          <Form>
+            <Form.Group className='mb-3' controlID='numberInEthtoWithdraw'>
+              <FormControl type='text' placeholder='Amount in ETH'
+                onChange={(e) => setEthToUseForWithdraw(e.target.value)} />
+              <FormControl type='text' placeholder='Address to send to'
+                onChange={(e) => setReceiverAddress(e.target.value)} />
+            </Form.Group>
+            <Button variant='primary' onClick={withdrawETHfromContract} >
+              Withdraw money from Wallet
             </Button>
           </Form>
         </Row>
