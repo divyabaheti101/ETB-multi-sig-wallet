@@ -18,9 +18,9 @@ function App() {
 
   //Fetch Owners of the Contract
   const { data: owners} = useContractRead({
-    contractAddress: contractAddress,
+    addressOrName: contractAddress,
     contractInterface: MultiSigWallet.abi,
-    functionName: 'getOwners()',
+    functionName: 'getOwners',
     watch: true
   })
 
@@ -28,7 +28,7 @@ function App() {
   const { data: withdrawTxnCount } = useContractRead({
     contractAddress: contractAddress,
     contractInterface: MultiSigWallet.abi,
-    functionName: 'getWithdrawTxCount()',
+    functionName: 'getWithdrawTxCount',
     watch: true
   })
 
@@ -36,7 +36,7 @@ function App() {
   const { data: contractBalance } = useContractRead({
     contractAddress: contractAddress,
     contractInterface: MultiSigWallet.abi,
-    functionName: 'balanceOf()',
+    functionName: 'balanceOf',
     watch: true
   })
 
@@ -44,7 +44,7 @@ function App() {
   const { data: withdrawTxns } = useContractRead({
     contractAddress: contractAddress,
     contractInterface: MultiSigWallet.abi,
-    functionName: 'getWithdrawTxes()',
+    functionName: 'getWithdrawTxes',
     watch: true
   })
 
@@ -80,9 +80,14 @@ function App() {
 
   //Deposit eth to wallet  
   const depositToEtherWalletContract = async() => {
-    await contract.deposit({
-      value: ethers.utils.parseEther(ethToUseForDeposit)
-    })
+    try {
+      await contract.deposit({
+        value: ethers.utils.parseEther(ethToUseForDeposit)
+      })
+    } catch(e){
+      console.log('Divya: ',e)
+    }
+    
     setEthToUseForDeposit(0)
   }
 
